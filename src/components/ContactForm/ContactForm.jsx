@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { StyledForm, StyledInput, StyledButton } from './ContactForm.styled';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from 'redux/contactsSlice';
+import { nanoid } from '@reduxjs/toolkit';
+import { selectContacts } from 'redux/selectors';
 
-export const ContactForm = ({ onAddContact }) => {
+export const ContactForm = () => {
+  const contacts = useSelector(selectContacts);
+  const dispatch = useDispatch();
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
@@ -16,10 +21,22 @@ export const ContactForm = ({ onAddContact }) => {
     }
   };
 
+  const handleAddContact = newContact => {
+    const isContactExist = contacts.some(
+      contact => contact.name === newContact.name
+    );
+
+    if (isContactExist) {
+      alert(`${newContact.name} is already in contacts`);
+    } else {
+      dispatch(addContact({ ...newContact, id: nanoid() }));
+    }
+  };
+
   const handleSubmit = event => {
     event.preventDefault();
 
-    onAddContact({ name, number });
+    handleAddContact({ name, number });
     setName('');
     setNumber('');
   };
@@ -51,5 +68,3 @@ export const ContactForm = ({ onAddContact }) => {
     </StyledForm>
   );
 };
-
-ContactForm.propTypes = { onAddContact: PropTypes.func.isRequired };
